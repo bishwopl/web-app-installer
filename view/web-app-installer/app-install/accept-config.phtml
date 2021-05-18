@@ -1,0 +1,19 @@
+<?php
+/* @var $this            \Laminas\View\Renderer\PhpRenderer */
+/* @var $module          \WebAppInstaller\Entity\Module */
+/* @var $executionResult \WebAppInstaller\Contracts\ExecutionResultInterface */
+
+$this->headTitle('Provide Config Values');
+
+$module = $this->module;
+$executionResult = $this->executionResult;
+?>
+
+<h1>
+    <?= $module->getModuleTitle() ?>
+    - <small>Executing Pre-install script</small>
+</h1>
+
+<?= $module->getModuleDescription() ?>
+
+<?= $this->partial('web-app-installer/form', ['form' => $this->form]) ?>

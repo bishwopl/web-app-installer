@@ -1,0 +1,82 @@
+<?php
+/* @var $this                    \Laminas\View\Renderer\PhpRenderer */
+/* @var $module                  \WebAppInstaller\Entity\Module */
+/* @var $resultVersion           \WebAppInstaller\Contracts\ExecutionResultInterface */
+/* @var $executionResult         \WebAppInstaller\Contracts\ExecutionResultInterface */
+
+$this->headTitle('Checking Requirements');
+
+$isRequiredExtsOK = true;
+$isOptionalExtsOK = true;
+$module = $this->module;
+$resultVersion = $this->resultVersion;
+$resultRequiredExtension = $this->resultRequiredExtension;
+$resultOptionalExtension = $this->resultOptionalExtension;
+
+$isPhpVersionSpecified = $module->getRequiredPhpVersion() > 0;
+$isRequiredExtsSpecified = sizeof($module->getRequiredPhpExtensions()) > 0;
+$isOptionalExtsSpecified = sizeof($module->getOptionalPhpExtensions()) > 0;
+
+$isVersionOK = $resultVersion->getStatus();
+foreach ($resultRequiredExtension as $executionResult) {
+    $isRequiredExtsOK .= $executionResult->getStatus();
+}
+foreach ($resultOptionalExtension as $executionResult) {
+    $isOptionalExtsOK .= $executionResult->getStatus();
+}
+?>
+<h1>
+    <?= $module->getModuleTitle() ?>
+    - <small>Checking Requirements</small>
+</h1>
+<?= $module->getModuleDescription() ?>
+<?php if ($isPhpVersionSpecified) : ?>
+    <h3>
+        PHP Version
+    </h3>
+    <div class="alert alert-dismissible alert-<?= $resultVersion->getStatus() ? 'success' : 'danger' ?>">
+        <p class="mb-0">
+            <?= $resultVersion->getMessages()['php'] ?>
+        </p>
+    </div>
+<?php else : ?>
+    <div class="alert alert-dismissible alert-success">
+        <p class="mb-0"><i>Required PHP version not specified</i></p>
+    </div>
+<?php endif; ?>
+
+<?php if ($isRequiredExtsSpecified) : ?>
+    <h3>
+        Required Extensions
+    </h3>
+    <?php foreach ($resultRequiredExtension as $executionResult): ?>
+        <div class="alert alert-dismissible alert-<?= $executionResult->getStatus() ? 'success' : 'danger' ?>">
+            <p class="mb-0">
+                <?= array_values($executionResult->getMessages())[0] ?>
+            </p>
+        </div>
+    <?php endforeach; ?>
+<?php else : ?>
+    <div class="alert alert-dismissible alert-success">
+        <p class="mb-0"><i>Required PHP extensions not specified</i></p>
+    </div>
+
+<?php endif; ?>
+
+<?php if ($isOptionalExtsSpecified) : ?>
+    <h3>
+        Optional Extensions
+    </h3>
+    <?php foreach ($resultOptionalExtension as $executionResult): ?>
+        <div class="alert alert-dismissible alert-<?= $executionResult->getStatus() ? 'success' : 'warning' ?>">
+            <p class="mb-0">
+                <?= array_values($executionResult->getMessages())[0] ?>
+            </p>
+        </div>
+    <?php endforeach; ?>
+<?php else : ?>
+    <div class="alert alert-dismissible alert-success">
+        <p class="mb-0"><i>Optional PHP extensions not specified</i></p>
+    </div>
+<?php endif; ?>
+<?= $this->partial('web-app-installer/form', ['form' => $this->form]) ?>

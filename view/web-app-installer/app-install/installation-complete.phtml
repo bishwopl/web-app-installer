@@ -1,0 +1,27 @@
+<?php
+/* @var $this            \Laminas\View\Renderer\PhpRenderer */
+/* @var $module          \WebAppInstaller\Entity\Module */
+
+$this->headTitle('Installation Complete');
+?>
+<?php if ($this->allModulesInstalled == true) : ?>
+    <h1>
+        Installation Complete
+    </h1>
+    <p>
+        You can start using your application now.
+        <a href="<?= $this->basePath('/') ?>">
+            Goto Home
+        </a>
+    </p>
+<?php else: ?>
+    <h1>
+        <?= $module->getModuleTitle() ?>
+        - <small>Installation Complete</small>
+    </h1>
+
+    <?= $module->getModuleDescription() ?>
+    <?= $this->partial('web-app-installer/form', ['form' => $this->form]) ?>
+<?php endif; ?>
+
+

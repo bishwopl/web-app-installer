@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <?= $this->headMeta()
+            ->appendName('viewport', 'width=device-width, initial-scale=1.0')
+            ->appendHttpEquiv('X-UA-Compatible', 'IE=edge')
+        ?>
+        <style type="text/css">
+            <?php echo file_get_contents(__DIR__ . '/../../src/Assets/bootstrap.min.css'); ?>
+        </style>
+        <?= $this->headTitle('App Installation')->setSeparator(' - ')->setAutoEscape(false) ?>
+    </head>
+    <body class="wp-core-ui">
+        <?= $this->content ?>
+        <script type="text/javascript">
+            <?php echo file_get_contents(__DIR__ . '/../../src/Assets/bootstrap.min.js') ?>
+        </script>
+    </body>
+</html>

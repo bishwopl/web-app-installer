@@ -1,0 +1,45 @@
+<?php
+/* @var $this            \Laminas\View\Renderer\PhpRenderer */
+/* @var $module          \WebAppInstaller\Entity\Module */
+/* @var $executionResult \WebAppInstaller\Contracts\ExecutionResultInterface */
+
+$this->headTitle('Pre Install Script Execution');
+
+$module = $this->module;
+$executionResult = $this->executionResult;
+?>
+
+<h1>
+    <?= $module->getModuleTitle() ?>
+    - <small>Executing Pre-install script</small>
+</h1>
+
+<?= $module->getModuleDescription() ?>
+
+<?php if ($executionResult !== null): ?>
+
+    <div class="alert alert-dismissible alert-<?= $executionResult->getStatus() ? 'success' : 'warning' ?>">
+        <p class="mb-0">
+            <?=
+            $executionResult->getStatus() ? 'Pre-install script execution successful!' : 'Pre-install script execution unsuccessful!'
+            ?>
+        </p>
+    </div>
+
+    <h3>Execution Output</h3>
+
+    <ol>
+        <?php foreach ($executionResult->getMessages() as $message): ?>
+            <li>
+                <?= $message ?>
+            </li>
+        <?php endforeach; ?>
+    </ol>
+    <?php else: ?>
+    <div class="alert alert-dismissible alert-warning">
+        <p class="mb-0">
+            Pre-install script not specified
+        </p>
+    </div>
+<?php endif; ?>
+<?= $this->partial('web-app-installer/form', ['form' => $this->form]) ?>
