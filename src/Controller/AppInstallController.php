@@ -7,6 +7,7 @@ use WebAppInstaller\Entity\Module;
 use WebAppInstaller\Form\BaseForm;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
+use Laminas\Mvc\MvcEvent;
 
 class AppInstallController extends AbstractActionController {
 
@@ -118,7 +119,7 @@ class AppInstallController extends AbstractActionController {
         return $this->getViewModel();
     }
 
-    public function acceptConfigAction(): ViewModel {
+    public function acceptConfigAction() {
         $this->setCorrectModuleAndStep(__METHOD__);
         $form = $this->currentModule->getForm();
         $form->get('app_installer_submit')->setLabel('Next');
@@ -222,6 +223,7 @@ class AppInstallController extends AbstractActionController {
 
     private function getViewModel() {
         $this->layout()->setTemplate('web-app-installer/layout');
+        $this->viewModel->setOption('lockLayout', true);
         return $this->viewModel;
     }
 

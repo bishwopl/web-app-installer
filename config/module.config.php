@@ -7,11 +7,11 @@ use Laminas\Router\Http\Segment;
 return [
     'web_app_installer' => [
         'install_hooks' => [
-            Install\InstallParameters::class,
-            Install\InstallParameterNew::class,
+            //Install\InstallParameters::class,
+            //Install\InstallParameterNew::class,
         ],
         'default_config_directory' => __DIR__ . '/../../../../config/autoload',
-        'default_config_file_name' => 'app.local.config.php',
+        'default_config_file_name' => 'app.config.local.php',
         'data_directory'           => __DIR__ . '/../../../../data/AppInstaller',
     ],
     'controllers' => [

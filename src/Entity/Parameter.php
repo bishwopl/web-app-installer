@@ -86,6 +86,14 @@ class Parameter {
         $this->childParameters = new ArrayCollection();
     }
 
+    public function getInputElement(): array {
+        return $this->inputElement;
+    }
+
+    public function getChildParameters(): ArrayCollection {
+        return $this->childParameters;
+    }
+    
     /**
      * @return int
      */

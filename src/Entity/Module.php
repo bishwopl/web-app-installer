@@ -10,6 +10,8 @@ use Laminas\Form\Factory as FormFactory;
 use Laminas\InputFilter\Factory as InputFilterFactory;
 use Laminas\Form\Element;
 use Laminas\Form\Form;
+use Laminas\InputFilter\InputFilter;
+use Laminas\InputFilter\Input;
 use Psr\Container\ContainerInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 
@@ -66,6 +68,18 @@ class Module {
      * @var string 
      */
     protected $installPriority;
+    
+    /**
+     * 
+     * @var array
+     */
+    protected $formSpec = [];
+    
+    /**
+     * 
+     * @var array
+     */
+    protected $inputFilterSpec = [];
 
     public function __construct(InstallParametersProviderInterface $installParametersProvider) {
         $this->installParametersProvider = $installParametersProvider;
@@ -105,18 +119,11 @@ class Module {
         }
         $formFactory = new FormFactory();
         $filterFactory = new InputFilterFactory();
-        $formSpec = [];
-        $filterSpec = [];
-        foreach ($this->parameters as $param) {
-            Assert::isInstanceOf($param, Parameter::class);
-            $formSpec[$param->getChildParameterCount() == 0 ? 'elements' : 'fieldsets'][] = [
-                'spec' => $param->getElementSpec()
-            ];
-            $filterSpec[$param->getParameterConfigKey()] = $param->getInputFilterSpec();
-        }
 
-        $this->form = $formFactory->createForm($formSpec);
-        $this->form->setInputFilter($filterFactory->createInputFilter($filterSpec));
+        $this->formSpec = $this->getFormSpec($this->getParameters());
+        $this->inputFilterSpec = $this->getInputFilterSpec($this->getParameters());
+        $this->form = $formFactory->createForm($this->formSpec);
+        $this->form->setInputFilter($filterFactory->createInputFilter($this->inputFilterSpec));
 
         $csrf = new Element\Csrf('app_installer_security');
         $csrf->getCsrfValidator()->setTimeout(600);
@@ -216,12 +223,18 @@ class Module {
         ];
     }
 
+    /**
+     * @param ContainerInterface $container
+     */
     public function executePreInstallScript(ContainerInterface $container) {
         $obj = $this->getObject($container, $this->callablePreInstallScriptClassName);
         Assert::isCallable($obj);
         $obj();
     }
 
+    /**
+     * @param ContainerInterface $container
+     */
     public function executePostInstallScript(ContainerInterface $container) {
         $obj = $this->getObject($container, $this->callablePostInstallScriptClassName);
         Assert::isCallable($obj);
@@ -243,7 +256,7 @@ class Module {
         $config = $this->installParametersProvider->getInstallParameters();
         return isset($config[SK::$REQUIRED_PHP_EXTENSIONS]) ? $config[SK::$REQUIRED_PHP_EXTENSIONS] : [];
     }
-    
+
     /**
      * @return array
      */
@@ -251,7 +264,7 @@ class Module {
         $config = $this->installParametersProvider->getInstallParameters();
         return isset($config[SK::$OPTIONAL_PHP_EXTENSIONS]) ? $config[SK::$OPTIONAL_PHP_EXTENSIONS] : [];
     }
-    
+
     /**
      * @return string
      */
@@ -265,7 +278,7 @@ class Module {
     public function getInstallParametersProvider(): InstallParametersProviderInterface {
         return $this->installParametersProvider;
     }
-    
+
     /**
      * @param ContainerInterface $container
      * @param type $className
@@ -283,6 +296,51 @@ class Module {
             throw new \Exception('Cannot initialize ' . $className . '.Reason : ' . $ex->getMessage());
         }
     }
+
+    /**
+     * Prepare form specification compliant with Laminas\Form\Factory
+     * @param \Doctrine\Common\Collections\Collection $parameters
+     * @return array
+     */
+    private function getFormSpec(\Doctrine\Common\Collections\Collection $parameters): array {
+        $spec = [];
+        foreach($parameters as $p){
+            if(!$p instanceof Parameter){
+                continue;
+            }
+            if($p->getChildParameterCount() == 0){
+                $elementSpec = $p->getInputElement();
+                $elementSpec['name'] = $p->getParameterConfigKey();
+                $spec['elements'][] = ['spec' => $elementSpec];
+            }else{
+                $fieldsetSpec = $this->getFormSpec($p->getChildParameters());
+                $fieldsetSpec['name'] = $p->getParameterConfigKey();
+                $spec['fieldsets'][] = ['spec' => $fieldsetSpec];
+            }
+        }
+        return $spec;
+    }
     
+    /**
+     * Prepare form specification compliant with Laminas\InputFilter\Factory
+     * @param \Doctrine\Common\Collections\Collection $parameters
+     * @return array
+     */
+    private function getInputFilterSpec(\Doctrine\Common\Collections\Collection $parameters): array {
+        $filterSpec = [];
+        foreach($parameters as $p){
+            if(!$p instanceof Parameter){
+                continue;
+            }
+            if($p->getChildParameterCount() == 0){
+                $filterSpec[$p->getParameterConfigKey()] = $p->getInputFilterSpec();
+                $filterSpec[$p->getParameterConfigKey()]['type'] = Input::class;
+            }else{
+                $filterSpec[$p->getParameterConfigKey()] = $this->getInputFilterSpec($p->getChildParameters());
+                $filterSpec[$p->getParameterConfigKey()]['type'] = InputFilter::class;
+            }
+        }
+        return $filterSpec;
+    }
 
 }

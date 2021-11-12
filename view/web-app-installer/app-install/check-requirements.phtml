@@ -24,6 +24,9 @@ foreach ($resultRequiredExtension as $executionResult) {
 foreach ($resultOptionalExtension as $executionResult) {
     $isOptionalExtsOK .= $executionResult->getStatus();
 }
+
+//\Symfony\Component\VarDumper\VarDumper::dump($module);
+
 ?>
 <h1>
     <?= $module->getModuleTitle() ?>

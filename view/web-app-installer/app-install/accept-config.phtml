@@ -7,11 +7,14 @@ $this->headTitle('Provide Config Values');
 
 $module = $this->module;
 $executionResult = $this->executionResult;
+
+//\Symfony\Component\VarDumper\VarDumper::dump($module);
+
 ?>
 
 <h1>
     <?= $module->getModuleTitle() ?>
-    - <small>Executing Pre-install script</small>
+    - <small>Provide Configuration Values</small>
 </h1>
 
 <?= $module->getModuleDescription() ?>

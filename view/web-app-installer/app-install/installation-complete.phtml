@@ -19,8 +19,6 @@ $this->headTitle('Installation Complete');
         <?= $module->getModuleTitle() ?>
         - <small>Installation Complete</small>
     </h1>
-
-    <?= $module->getModuleDescription() ?>
     <?= $this->partial('web-app-installer/form', ['form' => $this->form]) ?>
 <?php endif; ?>
 
